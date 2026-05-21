@@ -2,6 +2,8 @@ import telebot
 from telebot import types
 import sqlite3
 import html 
+from flask import Flask
+from threading import Thread
 
 # ==========================================
 # ⚙️ কনফিগারেশন (নতুন টোকেন ও এডমিন লিস্ট সহ)
@@ -82,10 +84,10 @@ def main_menu(user_id):
 def admin_menu():
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        types.InlineKeyboardButton("🛠️ 𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝𝐞𝐫𝐬", callback_data="adm_view_custom"),
+        types.InlineKeyboardButton("🛠️ 𝐏e𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝𝐞𝐫𝐬", callback_data="adm_view_custom"),
         types.InlineKeyboardButton("💰 𝐂𝐡𝐚𝐧𝐠𝐞 𝐈𝐃 𝐏𝐫𝐢𝐜𝐞", callback_data="adm_change_price"),
-        types.InlineKeyboardButton("💳 𝐂𝐡𝐚𝐧𝐠𝐞 𝐌𝐢𝐧 𝐃𝐞𝐩𝐨𝐬𝐢𝐭", callback_data="adm_change_min_dep"), # নতুন বাটন
-        types.InlineKeyboardButton("⏳ 𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐃𝐞𝐩𝐨𝐬𝐢𝐭𝐬", callback_data="adm_view_dep")
+        types.InlineKeyboardButton("💳 𝐂𝐡𝐚𝐧𝐠𝐞 𝐌𝐢𝐧 𝐃e𝐩𝐨𝐬𝐢𝐭", callback_data="adm_change_min_dep"), # নতুন বাটন
+        types.InlineKeyboardButton("⏳ 𝐏e𝐧𝐝𝐢𝐧𝐠 𝐃e𝐩𝐨𝐬𝐢𝐭𝐬", callback_data="adm_view_dep")
     )
     return markup
 
@@ -129,18 +131,17 @@ def profile(message):
 def support(message):
     user_states.pop(message.from_user.id, None)
     mk = types.InlineKeyboardMarkup(row_width=1)
-    # ওনার এবং এডমিনের বাটন ইংরেজিতে এবং বড় হাতের ফন্টে করা হয়েছে
     mk.add(
         types.InlineKeyboardButton("👑 𝐎𝐖𝐍𝐄𝐑 𝐒𝐔𝐏𝐏𝐎𝐑𝐓", url="https://t.me/SKYSMSOWNER"),
         types.InlineKeyboardButton("👨‍💻 𝐀𝐃𝐌𝐈𝐍 𝐒𝐔𝐏𝐏𝐎𝐑𝐓", url=f"https://t.me/{ADMIN_USERNAME}")
     )
-    bot.send_message(message.chat.id, "📞 <b>𝐒𝐮𝐩𝐩𝐨𝐫𝐭 𝐂𝐞𝐧𝐭𝐞𝐫</b>", reply_markup=mk)
+    bot.send_message(message.chat.id, "📞 <b>𝐒𝐮𝐩𝐩𝐨𝐫𝐭 𝐂e𝐧𝐭e𝐫</b>", reply_markup=mk)
 
-@bot.message_handler(func=lambda m: m.text == "🛡️ 𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧𝐞𝐥")
+@bot.message_handler(func=lambda m: m.text == "🛡️ 𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧e𝐥")
 def admin_p(message):
     user_states.pop(message.from_user.id, None)
     if message.from_user.id in ADMIN_IDS:
-        bot.send_message(message.chat.id, "🛠️ <b>𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧𝐞𝐥</b>", reply_markup=admin_menu())
+        bot.send_message(message.chat.id, "🛠️ <b>𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧e𝐥</b>", reply_markup=admin_menu())
 
 # ==========================================
 # 💳 ডিপোজিট ফ্লো (মিনিমাম লিমিট চেক সহ)
@@ -157,10 +158,9 @@ def dep_trx(message):
         amount = float(message.text)
         min_dep = get_min_deposit()
         
-        # মিনিমাম রেট চেক
         if amount < min_dep:
             bot.send_message(message.chat.id, f"❌ <b>দুঃখিত, মিনিমাম ডিপোজিট {min_dep}৳।</b>\nদয়া করে এর সমান বা বেশি অ্যামাউন্ট লিখে আবার পাঠান:")
-            return # স্টেট 'AMT' তেই থাকবে যাতে আবার ইনপুট দিতে পারে
+            return 
             
         user_states[message.from_user.id] = {'state': 'TRX', 'amt': amount}
         bot.send_message(message.chat.id, "📝 এবার আপনার পেমেন্টের <b>𝐓𝐫𝐚𝐧𝐬𝐚𝐜𝐭𝐢𝐨𝐧 𝐈𝐃 (𝐓𝐫𝐱𝐈𝐃)</b> দিন:")
@@ -170,7 +170,7 @@ def dep_trx(message):
 @bot.message_handler(func=lambda m: user_states.get(m.from_user.id, {}).get('state') == 'TRX' and m.text not in MENU_BUTTONS)
 def dep_photo(message):
     user_states[message.from_user.id].update({'state': 'PHOTO', 'trx': html.escape(message.text)})
-    bot.send_message(message.chat.id, "📸 পেমেন্ট প্রমাণের জন্য একটি <b>স্ক্রিনশট (𝐒𝐜𝐫𝐞𝐞𝐧𝐬𝐡𝐨𝐭)</b> দিন:")
+    bot.send_message(message.chat.id, "📸 পেমেন্ট প্রমাণের জন্য একটি <b>스크린샷 (𝐒𝐜𝐫𝐞e𝐧𝐬𝐡𝐨𝐭)</b> দিন:")
 
 @bot.message_handler(content_types=['photo'], func=lambda m: user_states.get(m.from_user.id, {}).get('state') == 'PHOTO')
 def dep_final(message):
@@ -206,7 +206,7 @@ def buy_pass_received(message):
     mk = types.InlineKeyboardMarkup(row_width=2)
     mk.add(
         types.InlineKeyboardButton("✅ 𝐂𝐨𝐧𝐟𝐢𝐫𝐦", callback_data="confirm_order"),
-        types.InlineKeyboardButton("❌ 𝐂𝐚𝐧𝐜𝐞𝐥", callback_data="cancel_order")
+        types.InlineKeyboardButton("❌ 𝐂𝐚𝐧𝐜e𝐥", callback_data="cancel_order")
     )
     
     confirm_text = f"📊 <b>অর্ডার কনফার্মেশন</b>\n━━━━━━━━━━━━━━━━━━━━\n🔢 <b>আইডির পরিমাণ:</b> {qty} টি\n🔑 <b>আপনার দেওয়া পাসওয়ার্ড:</b> <code>{user_pass}</code>\n💰 <b>মোট খরচ:</b> {cost}৳\n\nআপনি কি এই অর্ডারটি কনফার্ম করতে চান?"
@@ -246,7 +246,6 @@ def handle_confirmation(call):
         bot.answer_callback_query(call.id)
         bot.edit_message_text(f"✅ <b>আপনার অর্ডারটি সফলভাবে সাবমিট হয়েছে!</b>\nএডমিন আইডিগুলো তৈরি করে শীঘ্রই এই চ্যাটে ফাইল পাঠিয়ে দিবে।", call.message.chat.id, call.message.message_id)
         
-        # সকল এডমিনকে অ্যালার্ট পাঠানো হবে
         admin_alert = f"🔔 <b>নতুন পেন্ডিং কাস্টম অর্ডার এসেছে!</b>\n👤 ইউজার 𝐈𝐃: <code>{uid}</code>\n🔢 পরিমাণ: {data['qty']} টি\n🔑 পাসওয়ার্ড: <code>{data['pass']}</code>"
         notify_admins(admin_alert)
         
@@ -272,7 +271,7 @@ def admin_calls(call):
             user_states[aid] = {'state': 'CHANGE_PRICE'}
             bot.send_message(aid, "💰 নতুন দাম লিখে সেন্ড করুন:")
 
-        elif call.data == "adm_change_min_dep": # মিনিমাম ডিপোজিট চেঞ্জ কন্ডিশন
+        elif call.data == "adm_change_min_dep":
             bot.answer_callback_query(call.id)
             user_states[aid] = {'state': 'CHANGE_MIN_DEPOSIT'}
             bot.send_message(aid, "💳 নতুন মিনিমাম ডিপোজিট অ্যামাউন্ট লিখে সেন্ড করুন (শুধু সংখ্যা):")
@@ -283,8 +282,8 @@ def admin_calls(call):
             bot.answer_callback_query(call.id)
             for dep in pending:
                 mk = types.InlineKeyboardMarkup()
-                mk.add(types.InlineKeyboardButton("✅ 𝐀𝐩𝐩𝐫𝐨𝐯𝐞", callback_data=f"adm_app_{dep[0]}"), types.InlineKeyboardButton("❌ 𝐑𝐞𝐣𝐞𝐜𝐭", callback_data=f"adm_rej_{dep[0]}"))
-                bot.send_photo(aid, dep[4], caption=f"🔔 <b>𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐃𝐞𝐩𝐨𝐬𝐢𝐭</b>\n𝐈𝐃: <code>{dep[1]}</code>\n𝐀𝐦𝐨𝐮𝐧𝐭: {dep[2]}৳\n𝐓𝐫𝐱𝐈𝐃: <code>{dep[3]}</code>", reply_markup=mk)
+                mk.add(types.InlineKeyboardButton("✅ 𝐀𝐩𝐩𝐫𝐨𝐯𝐞", callback_data=f"adm_app_{dep[0]}"), types.InlineKeyboardButton("❌ 𝐑e𝐣e𝐜𝐭", callback_data=f"adm_rej_{dep[0]}"))
+                bot.send_photo(aid, dep[4], caption=f"🔔 <b>𝐏e𝐧𝐝𝐢𝐧𝐠 𝐃e𝐩𝐨𝐬𝐢𝐭</b>\n𝐈𝐃: <code>{dep[1]}</code>\n𝐀𝐦𝐨𝐮𝐧𝐭: {dep[2]}৳\n𝐓𝐫𝐱𝐈𝐃: <code>{dep[3]}</code>", reply_markup=mk)
 
         elif call.data == "adm_view_custom":
             orders = db_query("SELECT order_id, user_id, qty, user_pass FROM custom_orders WHERE status='Pending'", fetch=True)
@@ -292,8 +291,8 @@ def admin_calls(call):
             bot.answer_callback_query(call.id)
             for o in orders:
                 mk = types.InlineKeyboardMarkup()
-                mk.add(types.InlineKeyboardButton("📁 𝐔𝐩𝐥𝐨𝐚𝐝 𝐈𝐃𝐬 & 𝐃𝐞𝐥𝐢𝐯𝐞𝐫", callback_data=f"adm_cdeliv_{o[0]}_{o[1]}"))
-                order_msg = f"🛠️ <b>𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝𝐞𝐫</b>\n━━━━━━━━━━━━━━━━━━━━\n🔹 <b>𝐎𝐫𝐝𝐞𝐫 𝐈𝐃:</b> {o[0]}\n👤 <b>𝐔𝐬𝐞𝐫 𝐈𝐃:</b> <code>{o[1]}</code>\n🔢 <b>পরিমাণ:</b> {o[2]} টি\n🔑 <b>পাসওয়ার্ড:</b> <code>{o[3]}</code>"
+                mk.add(types.InlineKeyboardButton("📁 𝐔𝐩𝐥𝐨𝐚𝐝 𝐈𝐃𝐬 & 𝐃e𝐥𝐢𝐯e𝐫", callback_data=f"adm_cdeliv_{o[0]}_{o[1]}"))
+                order_msg = f"🛠️ <b>𝐏e𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝e𝐫</b>\n━━━━━━━━━━━━━━━━━━━━\n🔹 <b>𝐎𝐫𝐝e𝐫 𝐈𝐃:</b> {o[0]}\n👤 <b>𝐔𝐬e𝐫 𝐈𝐃:</b> <code>{o[1]}</code>\n🔢 <b>পরিমাণ:</b> {o[2]} টি\n🔑 <b>পাসওয়ার্ড:</b> <code>{o[3]}</code>"
                 bot.send_message(aid, order_msg, reply_markup=mk)
 
         elif cmd[1] == "cdeliv":
@@ -309,12 +308,12 @@ def admin_calls(call):
                 db_query("UPDATE users SET balance = balance + ? WHERE id=?", (res[0][1], res[0][0]))
                 db_query("UPDATE deposits SET status='Done' WHERE dep_id=?", (cmd[2],))
                 bot.send_message(res[0][0], f"🎉 আপনার <b>{res[0][1]}৳</b> সফলভাবে একাউন্টে এড করা হয়েছে!")
-                bot.edit_message_caption("✅ 𝐀𝐩𝐩𝐫𝐨𝐯𝐞𝐝 (𝐃𝐨𝐧𝐞)", call.message.chat.id, call.message.message_id)
+                bot.edit_message_caption("✅ 𝐀𝐩𝐩𝐫𝐨𝐯e𝐝 (𝐃𝐨𝐧e)", call.message.chat.id, call.message.message_id)
 
         elif cmd[1] == "rej":
             bot.answer_callback_query(call.id, "ডিপোজিট রিজেক্ট করা হয়েছে!")
             db_query("UPDATE deposits SET status='Rejected' WHERE dep_id=?", (cmd[2],))
-            bot.edit_message_caption("❌ 𝐑𝐞𝐣𝐞𝐜𝐭𝐞𝐝", call.message.chat.id, call.message.message_id)
+            bot.edit_message_caption("❌ 𝐑e𝐣e𝐜𝐭e𝐝", call.message.chat.id, call.message.message_id)
             
     except Exception as e:
         print(f"Error in Admin Call: {e}")
@@ -335,7 +334,7 @@ def admin_input_handler(message):
             bot.send_message(aid, "✅ আইডি প্রাইস সফলভাবে আপডেট হয়েছে।")
             user_states.pop(aid, None)
 
-        elif state_data['state'] == 'CHANGE_MIN_DEPOSIT': # নতুন মিনিমাম ডিপোজিট সেভ লজিক
+        elif state_data['state'] == 'CHANGE_MIN_DEPOSIT':
             try:
                 val = float(message.text)
                 db_query("UPDATE settings SET value=? WHERE key='min_deposit'", (str(val),))
@@ -360,5 +359,26 @@ def admin_input_handler(message):
     except Exception as e:
         bot.send_message(aid, f"❌ ডেলিভারিতে সমস্যা হয়েছে: {str(e)}")
 
-print("🚀 𝐒𝐇𝐀𝐊𝐀𝐘𝐀𝐓𝐇 𝐁𝐇𝐀𝐈, 𝐓𝐖𝐎-𝐀𝐃𝐌𝐈𝐍 & 𝐌𝐈𝐍-𝐃𝐄𝐏𝐎𝐒𝐈𝐓 𝐁𝐎𝐓 𝐈𝐒 𝐑𝐔𝐍𝐍𝐈𝐍𝐆!")
-bot.infinity_polling(timeout=10, long_polling_timeout=5)
+# ==========================================
+# 🌐 রেন্ডার কিপ-অ্যালাইভ ওয়েব সার্ভার (নতুন যুক্ত)
+# ==========================================
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "🚀 SAKHAWAT BHAI, YOUR BOT IS LIVE 24/7!"
+
+def run_server():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run_server)
+    t.start()
+
+# ==========================================
+# 🏁 বটের মেইন রানার ব্লক
+# ==========================================
+if __name__ == "__main__":
+    keep_alive() # রেন্ডারের জন্য ওয়েব সার্ভার ব্যাকগ্রাউন্ডে স্টার্ট করবে
+    print("🚀 𝐒𝐇𝐀𝐊𝐀𝐘𝐀𝐓𝐇 𝐁𝐇𝐀𝐈, 𝐓𝐖𝐎-𝐀𝐃𝐌𝐈𝐍 & 𝐌𝐈𝐍-𝐃𝐄𝐏𝐎𝐒𝐈𝐓 𝐁𝐎𝐓 𝐈𝐒 𝐑𝐔𝐍𝐍𝐈𝐍𝐆!")
+    bot.infinity_polling(timeout=10, long_polling_timeout=5)
