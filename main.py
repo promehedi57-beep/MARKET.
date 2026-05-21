@@ -16,6 +16,7 @@ BKASH_NUMBER = "01742958563"
 bot = telebot.TeleBot(API_TOKEN, parse_mode="HTML")
 user_states = {}
 
+# এখানে বাটনগুলোর টেক্সট একদম নিখুঁত রাখা হয়েছে
 MENU_BUTTONS = ["🛒 𝐁𝐮𝐲 𝐅𝐁 𝐈𝐃", "👤  𝐌𝐲 𝐏𝐫𝐨𝐟𝐢𝐥𝐞", "💳 𝐀𝐝𝐝 𝐌𝐨𝐧𝐞𝐲", "📞 𝐒𝐮𝐩𝐩𝐨𝐫𝐭 & 𝐇𝐞𝐥𝐩", "🛡️ 𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧𝐞𝐥"]
 
 # ==========================================
@@ -36,9 +37,8 @@ def init_db():
     db_query('''CREATE TABLE IF NOT EXISTS custom_orders (order_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, qty INTEGER, status TEXT DEFAULT 'Pending')''')
     db_query('''CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)''')
     db_query('''INSERT OR IGNORE INTO settings (key, value) VALUES ('id_price', '10.0')''')
-    db_query('''INSERT OR IGNORE INTO settings (key, value) VALUES ('min_deposit', '10.0')''') # মিনিমাম ডিপোজিটের ডিফল্ট ভ্যালু
+    db_query('''INSERT OR IGNORE INTO settings (key, value) VALUES ('min_deposit', '10.0')''') 
     
-    # ডাটাবেস অটো ফিক্স কলাম চেক
     try:
         db_query("ALTER TABLE custom_orders ADD COLUMN user_pass TEXT")
         print("✅ Database Updated: 'user_pass' column verified/added!")
@@ -55,7 +55,6 @@ def get_min_deposit():
     res = db_query("SELECT value FROM settings WHERE key='min_deposit'", fetch=True)
     return float(res[0][0]) if res else 10.0
 
-# সকল এডমিনকে একসাথে মেসেজ বা নোটিফিকেশন পাঠানোর ফাংশন
 def notify_admins(text, photo_id=None, reply_markup=None):
     for admin in ADMIN_IDS:
         try:
@@ -84,9 +83,9 @@ def main_menu(user_id):
 def admin_menu():
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        types.InlineKeyboardButton("🛠️ 𝐏e𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝𝐞𝐫𝐬", callback_data="adm_view_custom"),
+        types.InlineKeyboardButton("🛠️ 𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝𝐞𝐫𝐬", callback_data="adm_view_custom"),
         types.InlineKeyboardButton("💰 𝐂𝐡𝐚𝐧𝐠𝐞 𝐈𝐃 𝐏𝐫𝐢𝐜𝐞", callback_data="adm_change_price"),
-        types.InlineKeyboardButton("💳 𝐂𝐡𝐚𝐧𝐠𝐞 𝐌𝐢𝐧 𝐃e𝐩𝐨𝐬𝐢𝐭", callback_data="adm_change_min_dep"), # নতুন বাটন
+        types.InlineKeyboardButton("💳 𝐂𝐡𝐚𝐧𝐠𝐞 𝐌𝐢𝐧 𝐃𝐞𝐩𝐨𝐬𝐢𝐭", callback_data="adm_change_min_dep"), 
         types.InlineKeyboardButton("⏳ 𝐏e𝐧𝐝𝐢𝐧𝐠 𝐃e𝐩𝐨𝐬𝐢𝐭𝐬", callback_data="adm_view_dep")
     )
     return markup
@@ -135,13 +134,14 @@ def support(message):
         types.InlineKeyboardButton("👑 𝐎𝐖𝐍𝐄𝐑 𝐒𝐔𝐏𝐏𝐎𝐑𝐓", url="https://t.me/SKYSMSOWNER"),
         types.InlineKeyboardButton("👨‍💻 𝐀𝐃𝐌𝐈𝐍 𝐒𝐔𝐏𝐏𝐎𝐑𝐓", url=f"https://t.me/{ADMIN_USERNAME}")
     )
-    bot.send_message(message.chat.id, "📞 <b>𝐒𝐮𝐩𝐩𝐨𝐫𝐭 𝐂e𝐧𝐭e𝐫</b>", reply_markup=mk)
+    bot.send_message(message.chat.id, "📞 <b>𝐒𝐮𝐩𝐩𝐨𝐫𝐭 𝐂𝐞𝐧𝐭𝐞𝐫</b>", reply_markup=mk)
 
-@bot.message_handler(func=lambda m: m.text == "🛡️ 𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧e𝐥")
+# এই কন্ডিশনে ফন্ট ফিক্স করা হয়েছে, এখন এডমিন প্যানেল বাটন কাজ করবে নিশ্চিত
+@bot.message_handler(func=lambda m: m.text == "🛡️ 𝐀𝐝𝐦𝐢𝐧 𝐏an𝐞𝐥" or m.text == "🛡️ 𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧𝐞λ" or m.text == "🛡️ 𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧𝐞𝐥")
 def admin_p(message):
     user_states.pop(message.from_user.id, None)
     if message.from_user.id in ADMIN_IDS:
-        bot.send_message(message.chat.id, "🛠️ <b>𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧e𝐥</b>", reply_markup=admin_menu())
+        bot.send_message(message.chat.id, "🛠️ <b>𝐀𝐝𝐦𝐢𝐧 𝐏𝐚𝐧𝐞𝐥</b>", reply_markup=admin_menu())
 
 # ==========================================
 # 💳 ডিপোজিট ফ্লো (মিনিমাম লিমিট চেক সহ)
@@ -170,7 +170,7 @@ def dep_trx(message):
 @bot.message_handler(func=lambda m: user_states.get(m.from_user.id, {}).get('state') == 'TRX' and m.text not in MENU_BUTTONS)
 def dep_photo(message):
     user_states[message.from_user.id].update({'state': 'PHOTO', 'trx': html.escape(message.text)})
-    bot.send_message(message.chat.id, "📸 পেমেন্ট প্রমাণের জন্য একটি <b>스크린샷 (𝐒𝐜𝐫𝐞e𝐧𝐬𝐡𝐨𝐭)</b> দিন:")
+    bot.send_message(message.chat.id, "📸 পেমেন্ট প্রমাণের জন্য একটি <b>스크린샷 (𝐒𝐜𝐫𝐞𝐞𝐧𝐬𝐡𝐨𝐭)</b> দিন:")
 
 @bot.message_handler(content_types=['photo'], func=lambda m: user_states.get(m.from_user.id, {}).get('state') == 'PHOTO')
 def dep_final(message):
@@ -206,7 +206,7 @@ def buy_pass_received(message):
     mk = types.InlineKeyboardMarkup(row_width=2)
     mk.add(
         types.InlineKeyboardButton("✅ 𝐂𝐨𝐧𝐟𝐢𝐫𝐦", callback_data="confirm_order"),
-        types.InlineKeyboardButton("❌ 𝐂𝐚𝐧𝐜e𝐥", callback_data="cancel_order")
+        types.InlineKeyboardButton("❌ 𝐂𝐚𝐧𝐜𝐞𝐥", callback_data="cancel_order")
     )
     
     confirm_text = f"📊 <b>অর্ডার কনফার্মেশন</b>\n━━━━━━━━━━━━━━━━━━━━\n🔢 <b>আইডির পরিমাণ:</b> {qty} টি\n🔑 <b>আপনার দেওয়া পাসওয়ার্ড:</b> <code>{user_pass}</code>\n💰 <b>মোট খরচ:</b> {cost}৳\n\nআপনি কি এই অর্ডারটি কনফার্ম করতে চান?"
@@ -282,8 +282,8 @@ def admin_calls(call):
             bot.answer_callback_query(call.id)
             for dep in pending:
                 mk = types.InlineKeyboardMarkup()
-                mk.add(types.InlineKeyboardButton("✅ 𝐀𝐩𝐩𝐫𝐨𝐯𝐞", callback_data=f"adm_app_{dep[0]}"), types.InlineKeyboardButton("❌ 𝐑e𝐣e𝐜𝐭", callback_data=f"adm_rej_{dep[0]}"))
-                bot.send_photo(aid, dep[4], caption=f"🔔 <b>𝐏e𝐧𝐝𝐢𝐧𝐠 𝐃e𝐩𝐨𝐬𝐢𝐭</b>\n𝐈𝐃: <code>{dep[1]}</code>\n𝐀𝐦𝐨𝐮𝐧𝐭: {dep[2]}৳\n𝐓𝐫𝐱𝐈𝐃: <code>{dep[3]}</code>", reply_markup=mk)
+                mk.add(types.InlineKeyboardButton("✅ 𝐀𝐩𝐩𝐫𝐨𝐯𝐞", callback_data=f"adm_app_{dep[0]}"), types.InlineKeyboardButton("❌ 𝐑𝐞𝐣𝐞𝐜𝐭", callback_data=f"adm_rej_{dep[0]}"))
+                bot.send_photo(aid, dep[4], caption=f"🔔 <b>𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐃𝐞𝐩𝐨𝐬𝐢𝐭</b>\n𝐈𝐃: <code>{dep[1]}</code>\n𝐀𝐦𝐨𝐮𝐧𝐭: {dep[2]}৳\n𝐓𝐫𝐱𝐈𝐃: <code>{dep[3]}</code>", reply_markup=mk)
 
         elif call.data == "adm_view_custom":
             orders = db_query("SELECT order_id, user_id, qty, user_pass FROM custom_orders WHERE status='Pending'", fetch=True)
@@ -291,8 +291,8 @@ def admin_calls(call):
             bot.answer_callback_query(call.id)
             for o in orders:
                 mk = types.InlineKeyboardMarkup()
-                mk.add(types.InlineKeyboardButton("📁 𝐔𝐩𝐥𝐨𝐚𝐝 𝐈𝐃𝐬 & 𝐃e𝐥𝐢𝐯e𝐫", callback_data=f"adm_cdeliv_{o[0]}_{o[1]}"))
-                order_msg = f"🛠️ <b>𝐏e𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝e𝐫</b>\n━━━━━━━━━━━━━━━━━━━━\n🔹 <b>𝐎𝐫𝐝e𝐫 𝐈𝐃:</b> {o[0]}\n👤 <b>𝐔𝐬e𝐫 𝐈𝐃:</b> <code>{o[1]}</code>\n🔢 <b>পরিমাণ:</b> {o[2]} টি\n🔑 <b>পাসওয়ার্ড:</b> <code>{o[3]}</code>"
+                mk.add(types.InlineKeyboardButton("📁 𝐔𝐩𝐥𝐨𝐚𝐝 𝐈𝐃𝐬 & 𝐃𝐞𝐥𝐢𝐯𝐞𝐫", callback_data=f"adm_cdeliv_{o[0]}_{o[1]}"))
+                order_msg = f"🛠️ <b><b>𝐏𝐞𝐧𝐝𝐢𝐧𝐠 𝐂𝐮𝐬𝐭𝐨𝐦 𝐎𝐫𝐝𝐞𝐫</b></b>\n━━━━━━━━━━━━━━━━━━━━\n🔹 <b>𝐎𝐫𝐝𝐞𝐫 𝐈𝐃:</b> {o[0]}\n👤 <b>𝐔𝐬𝐞𝐫 𝐈𝐃:</b> <code>{o[1]}</code>\n🔢 <b>পরিমাণ:</b> {o[2]} টি\n🔑 <b>পাসওয়ার্ড:</b> <code>{o[3]}</code>"
                 bot.send_message(aid, order_msg, reply_markup=mk)
 
         elif cmd[1] == "cdeliv":
@@ -308,12 +308,12 @@ def admin_calls(call):
                 db_query("UPDATE users SET balance = balance + ? WHERE id=?", (res[0][1], res[0][0]))
                 db_query("UPDATE deposits SET status='Done' WHERE dep_id=?", (cmd[2],))
                 bot.send_message(res[0][0], f"🎉 আপনার <b>{res[0][1]}৳</b> সফলভাবে একাউন্টে এড করা হয়েছে!")
-                bot.edit_message_caption("✅ 𝐀𝐩𝐩𝐫𝐨𝐯e𝐝 (𝐃𝐨𝐧e)", call.message.chat.id, call.message.message_id)
+                bot.edit_message_caption("✅ 𝐀𝐩𝐩𝐫𝐨𝐯𝐞𝐝 (𝐃𝐨𝐧𝐞)", call.message.chat.id, call.message.message_id)
 
         elif cmd[1] == "rej":
             bot.answer_callback_query(call.id, "ডিপোজিট রিজেক্ট করা হয়েছে!")
             db_query("UPDATE deposits SET status='Rejected' WHERE dep_id=?", (cmd[2],))
-            bot.edit_message_caption("❌ 𝐑e𝐣e𝐜𝐭e𝐝", call.message.chat.id, call.message.message_id)
+            bot.edit_message_caption("❌ 𝐑𝐞𝐣𝐞𝐜𝐭𝐞𝐝", call.message.chat.id, call.message.message_id)
             
     except Exception as e:
         print(f"Error in Admin Call: {e}")
@@ -360,7 +360,7 @@ def admin_input_handler(message):
         bot.send_message(aid, f"❌ ডেলিভারিতে সমস্যা হয়েছে: {str(e)}")
 
 # ==========================================
-# 🌐 রেন্ডার কিপ-অ্যালাইভ ওয়েব সার্ভার (নতুন যুক্ত)
+# 🌐 রেন্ডার কিপ-অ্যালাইভ ওয়েব সার্ভার
 # ==========================================
 app = Flask('')
 
@@ -379,6 +379,6 @@ def keep_alive():
 # 🏁 বটের মেইন রানার ব্লক
 # ==========================================
 if __name__ == "__main__":
-    keep_alive() # রেন্ডারের জন্য ওয়েব সার্ভার ব্যাকগ্রাউন্ডে স্টার্ট করবে
+    keep_alive() 
     print("🚀 𝐒𝐇𝐀𝐊𝐀𝐘𝐀𝐓𝐇 𝐁𝐇𝐀𝐈, 𝐓𝐖𝐎-𝐀𝐃𝐌𝐈𝐍 & 𝐌𝐈𝐍-𝐃𝐄𝐏𝐎𝐒𝐈𝐓 𝐁𝐎𝐓 𝐈𝐒 𝐑𝐔𝐍𝐍𝐈𝐍𝐆!")
     bot.infinity_polling(timeout=10, long_polling_timeout=5)
